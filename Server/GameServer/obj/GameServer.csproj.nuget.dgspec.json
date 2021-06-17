@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\UnityStuff\\Server\\GameServer\\GameServer\\GameServer.csproj": {}
+    "C:\\UnityStuff\\Projects\\NetworkingFromScratch\\Server\\GameServer\\GameServer.csproj": {}
   },
   "projects": {
-    "C:\\UnityStuff\\Server\\GameServer\\GameServer\\GameServer.csproj": {
+    "C:\\UnityStuff\\Projects\\NetworkingFromScratch\\Server\\GameServer\\GameServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\UnityStuff\\Server\\GameServer\\GameServer\\GameServer.csproj",
+        "projectUniqueName": "C:\\UnityStuff\\Projects\\NetworkingFromScratch\\Server\\GameServer\\GameServer.csproj",
         "projectName": "GameServer",
-        "projectPath": "C:\\UnityStuff\\Server\\GameServer\\GameServer\\GameServer.csproj",
+        "projectPath": "C:\\UnityStuff\\Projects\\NetworkingFromScratch\\Server\\GameServer\\GameServer.csproj",
         "packagesPath": "C:\\Users\\Jack Eatock\\.nuget\\packages\\",
-        "outputPath": "C:\\UnityStuff\\Server\\GameServer\\GameServer\\obj\\",
+        "outputPath": "C:\\UnityStuff\\Projects\\NetworkingFromScratch\\Server\\GameServer\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Jack Eatock\\AppData\\Roaming\\NuGet\\NuGet.Config",

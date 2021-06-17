@@ -6,15 +6,13 @@ using System.Net.Sockets;
 
 namespace GameServer {
     class Client {
+
         public static int DataBufferSize = 4096;
         public int Id;
         public TCP Tcp;
         
-        public Client(int _clientId) {
-            Id = _clientId;
-            Tcp = new TCP(Id);
-        }
-
+        public Client(int _clientId) {  Id = _clientId;   Tcp = new TCP(Id);  }
+           
         public class TCP {
 
             public TcpClient socket;
@@ -35,9 +33,25 @@ namespace GameServer {
                 stream.BeginRead(recieveBuffer, 0, DataBufferSize, RecieveCallback, null);
 
                 // Send welcome packet
+                ServerSend.Welcome(id, "Welcome to the Server!");
             }
 
+            public void SendData(Packet _packet) {
+                try {
+                    if (socket != null) {
+                        stream.BeginWrite(_packet.ToArray(), 0, _packet.Length(), null, null);
+                    }
+                       
+                }
+                catch (Exception _ex) {
+
+                    Console.WriteLine($"ERROR sending data to player {id} via TCP: {_ex}");
+                }
+            }
+
+
             private void RecieveCallback(IAsyncResult _result) {
+
                 try {
                     int _byteLength = stream.EndRead(_result);
                     if (_byteLength <= 0) {
@@ -52,6 +66,7 @@ namespace GameServer {
 
                     stream.BeginRead(recieveBuffer, 0 , DataBufferSize, RecieveCallback, null);
                 }
+
                 catch (Exception _ex) {
 
                     Console.WriteLine($"Error recieving TCP data: {_ex}");
