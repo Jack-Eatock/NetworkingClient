@@ -3,15 +3,24 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 
 namespace GameServer {
     class Client {
 
         public static int DataBufferSize = 4096;
         public int Id;
-        public TCP Tcp;
 
-        public Client(int _clientId) { Id = _clientId; Tcp = new TCP(Id); }
+        public Player player;
+
+        public TCP Tcp;
+        public UDP Udp;
+
+        public Client(int _clientId) { 
+            Id = _clientId; 
+            Tcp = new TCP(Id); 
+            Udp = new UDP(Id); 
+        }
 
         public class TCP {
 
@@ -125,6 +134,65 @@ namespace GameServer {
                 return false;
             }
 
+        }
+
+        public class UDP {
+
+            public IPEndPoint endPoint;
+
+            private int id;
+
+            public UDP(int _id) {
+                id = _id;
+            }
+
+            public void Connect(IPEndPoint _endPoint) {
+                endPoint = _endPoint;
+            }
+
+            public void SendData(Packet _packet) {
+                Server.SendUDPData(endPoint, _packet);
+            }
+
+            public void HandleData(Packet _packetData) {
+
+                int _packetLength = _packetData.ReadInt();
+                byte[] _packetBytes = _packetData.ReadBytes(_packetLength);
+
+                ThreadManager.ExecuteOnMainThread(() => {
+
+                    using (Packet _packet = new Packet(_packetBytes)) {
+                        int _packetId = _packet.ReadInt();
+                        Server.packetHandlers[_packetId](id, _packet);
+                    }
+
+
+                });
+            }
+        }
+         
+        public void SendIntoGame(string _playerName) {
+            player = new Player(Id, _playerName, new Vector3(0, 0, 0));
+
+            foreach (Client _client in Server.Clients.Values) {
+
+                if (_client.player != null) {
+
+                    if (_client.Id != Id) {
+                        ServerSend.SpawnPlayer(Id, _client.player);
+                    }
+                }
+            }
+
+            foreach (Client _client in Server.Clients.Values) {
+
+                if (_client.player != null) {
+
+                    ServerSend.SpawnPlayer(_client.Id, player);
+
+                }
+
+            }
         }
     }
 }

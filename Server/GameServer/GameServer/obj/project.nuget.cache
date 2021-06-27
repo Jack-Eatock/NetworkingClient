@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "wD5PlB2pjMTewTvVigMzyEg91VDrcWJgDGppstjr9S7740wio5EFFSP8c8UalHP3na/iO0i0/kElLH1z/yLs+w==",
+  "dgSpecHash": "ala7E9iqV+SBg0Y+yiqa5BffwLrOasrbZSC37y6i6AuyrgMbyrZ+O1lCUCbPVbFnXid3EgJJHs3mJTfk4iKEIQ==",
   "success": true,
   "projectFilePath": "E:\\UnityRelated\\Projects\\NetworkingFromScratch\\Server\\GameServer\\GameServer\\GameServer.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\jacke\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512"
+  ],
   "logs": []
 }

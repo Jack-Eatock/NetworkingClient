@@ -12,7 +12,9 @@ public class Client : MonoBehaviour {
     public string Ip = "127.0.0.1";
     public int Port = 26950;
     public int MyId = 0;
+
     public TCP Tcp;
+    public UDP Udp;
 
     private delegate void PacketHandler(Packet _packet);
     private static Dictionary<int, PacketHandler> packetHandlers;
@@ -31,6 +33,7 @@ public class Client : MonoBehaviour {
 
     private void Start() {
         Tcp = new TCP();
+        Udp = new UDP();
     }
 
     public void ConnectToServer() {
@@ -157,11 +160,88 @@ public class Client : MonoBehaviour {
         }
     }
 
+    public class UDP {
+
+        public UdpClient socket;
+        public IPEndPoint endPoint;
+
+        public UDP() {
+            endPoint = new IPEndPoint(IPAddress.Parse(Instance.Ip), Instance.Port);
+        }
+
+        public void Connect(int _localPort) {
+            socket = new UdpClient(_localPort);
+            socket.Connect(endPoint);
+            socket.BeginReceive(RecieveCallback, null);
+
+            // Initial Packet sent to open port and prepare for flow
+            using (Packet _packet = new Packet()) {
+                SendData(_packet);
+            }
+        }
+
+
+        public void SendData(Packet _packet) {
+            try {
+                _packet.InsertInt(Instance.MyId);
+                if (socket != null) {
+                    socket.BeginSend(_packet.ToArray(), _packet.Length(), null, null);
+                }
+
+            }
+            catch (Exception _ex) {
+
+                Debug.Log($"Error sending data to server via UDP: {_ex} ");
+            }
+        }
+
+        private void RecieveCallback(IAsyncResult _result) {
+            try {
+                byte[] _data = socket.EndReceive(_result, ref endPoint);
+                socket.BeginReceive(RecieveCallback, null);
+
+                if (_data.Length < 4) {
+
+                    // Disconnect?
+                    return;
+                }
+
+                HandleData(_data);
+            }
+            catch (Exception) {
+
+                // Disconnect?
+            }
+        }
+
+        private void HandleData(byte[] _data) {
+
+            // Remove the length of the packet from the begining soo we just have data.
+            using (Packet _packet = new Packet(_data)) {
+                int _packetLength = _packet.ReadInt();
+                _data = _packet.ReadBytes(_packetLength);
+            };
+
+            // Now that the length has been removed from the begining, process the data within the packet
+            // first the id.
+            ThreadManager.ExecuteOnMainThread(() => {
+                using (Packet _packet = new Packet(_data)) {
+                    int _packetId = _packet.ReadInt();
+                    packetHandlers[_packetId](_packet);
+                }
+            });
+        }
+
+
+    }
 
 
     private void InitializeClientData() {
         packetHandlers = new Dictionary<int, PacketHandler>() {
-            {(int) ServerPackets.welcome, ClientHandle.Welcome}
+            {(int) ServerPackets.welcome, ClientHandle.Welcome},
+            {(int) ServerPackets.spawnPlayer, ClientHandle.SpawnPlayer},
+            {(int) ServerPackets.playerPosition, ClientHandle.PlayerPosition},
+            {(int) ServerPackets.playerRotation, ClientHandle.PlayerRotation},
         };
 
         Debug.Log("Initizalized Client Data");
