@@ -1,9 +1,10 @@
-using System;
-using System.Text;
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Text;
 
-/// <summary>Sent from server to client.</summary>
+namespace GameServer
+{
+    /// <summary>Sent from server to client.</summary>
     public enum ServerPackets
     {
         welcome = 1
@@ -352,3 +353,5 @@ using UnityEngine;
             GC.SuppressFinalize(this);
         }
     }
+}
+

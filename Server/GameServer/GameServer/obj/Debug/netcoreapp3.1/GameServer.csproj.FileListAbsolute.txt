@@ -1,0 +1,13 @@
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\bin\Debug\netcoreapp3.1\GameServer.exe
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\bin\Debug\netcoreapp3.1\GameServer.deps.json
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\bin\Debug\netcoreapp3.1\GameServer.runtimeconfig.json
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\bin\Debug\netcoreapp3.1\GameServer.runtimeconfig.dev.json
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\bin\Debug\netcoreapp3.1\GameServer.dll
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\bin\Debug\netcoreapp3.1\GameServer.pdb
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\obj\Debug\netcoreapp3.1\GameServer.AssemblyInfoInputs.cache
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\obj\Debug\netcoreapp3.1\GameServer.AssemblyInfo.cs
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\obj\Debug\netcoreapp3.1\GameServer.csproj.CoreCompileInputs.cache
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\obj\Debug\netcoreapp3.1\GameServer.dll
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\obj\Debug\netcoreapp3.1\GameServer.pdb
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\obj\Debug\netcoreapp3.1\GameServer.genruntimeconfig.cache
+E:\UnityRelated\Projects\NetworkingFromScratch\Server\GameServer\GameServer\obj\Debug\netcoreapp3.1\GameServer.csprojAssemblyReference.cache

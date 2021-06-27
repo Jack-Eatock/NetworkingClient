@@ -14,6 +14,9 @@ public class Client : MonoBehaviour {
     public int MyId = 0;
     public TCP Tcp;
 
+    private delegate void PacketHandler(Packet _packet);
+    private static Dictionary<int, PacketHandler> packetHandlers;
+
     private void Awake() {
 
         // Ensures only one. Signleton method.
@@ -31,6 +34,8 @@ public class Client : MonoBehaviour {
     }
 
     public void ConnectToServer() {
+        InitializeClientData();
+
         Tcp.Connect();
     }
 
@@ -38,6 +43,9 @@ public class Client : MonoBehaviour {
         public TcpClient sockets;
 
         private NetworkStream stream;
+
+        private Packet RecievedData;
+
         private byte[] recieveBuffer;
 
         public void Connect() {
@@ -55,34 +63,108 @@ public class Client : MonoBehaviour {
         private void ConnectCallback(IAsyncResult _result) {
             sockets.EndConnect(_result);
 
-            if (sockets.Connected) {
+            if (!sockets.Connected) {
                 return;
             }
 
             stream = sockets.GetStream();
 
+            RecievedData = new Packet();
+
             stream.BeginRead(recieveBuffer, 0, DataBufferSize, RecieveCallback, null);
         }
 
+        public void SendData(Packet _packet) {
+            try {
+                if (sockets != null) {
+                    stream.BeginWrite(_packet.ToArray(), 0, _packet.Length(), null, null);
+                }
+            }
+            catch (Exception _ex) {
+
+                Debug.Log($"Error sending data to server via TCP: {_ex} ");
+            }
+        }
+
+
         private void RecieveCallback(IAsyncResult _result) {
             try {
-                  int _byteLength = stream.EndRead(_result);
-                    if (_byteLength <= 0) {
-                        // Disconnect
-                        return;
-                    }
+                int _byteLength = stream.EndRead(_result);
+                if (_byteLength <= 0) {
+                    // Disconnect
+                    return;
+                }
 
-                    byte[] _data = new byte[_byteLength];
-                    Array.Copy(recieveBuffer, _data, _byteLength);
+                byte[] _data = new byte[_byteLength];
+                Array.Copy(recieveBuffer, _data, _byteLength);
 
-                    // Handle Data
-
-                    stream.BeginRead(recieveBuffer, 0 , DataBufferSize, RecieveCallback, null);
+                // Handle Data
+                RecievedData.Reset(HandleData(_data));
+                stream.BeginRead(recieveBuffer, 0, DataBufferSize, RecieveCallback, null);
             }
             catch (Exception) {
 
                 // Disconnect
             }
         }
+
+
+        private bool HandleData(byte[] _data) {
+            int _packetLength = 0;
+
+            RecievedData.SetBytes(_data);
+
+            // The first bit of data in any msg is the length of data.
+            // an int is 4 bytes, soo Anything more than 4 contains the int, soo contains data.
+            if (RecievedData.UnreadLength() >= 4) {
+
+                _packetLength = RecievedData.ReadInt();
+
+                if (_packetLength <= 0) { return true; }
+
+            }
+
+            while (_packetLength > 0 && _packetLength <= RecievedData.UnreadLength()) {
+
+                byte[] _packetBytes = RecievedData.ReadBytes(_packetLength);
+
+                ThreadManager.ExecuteOnMainThread(() => {
+                    using (Packet _packet = new Packet(_packetBytes)) {
+
+                        int _packetId = _packet.ReadInt();
+                        packetHandlers[_packetId](_packet);
+                    }
+
+                });
+
+                _packetLength = 0;
+
+                // If data still to be read.
+                if (RecievedData.UnreadLength() >= 4) {
+
+                    _packetLength = RecievedData.ReadInt();
+
+                    if (_packetLength <= 0) { return true; }
+
+                }
+            }
+
+            if (_packetLength <= 1) {
+                return true;
+            }
+
+            return false;
+        }
     }
+
+
+
+    private void InitializeClientData() {
+        packetHandlers = new Dictionary<int, PacketHandler>() {
+            {(int) ServerPackets.welcome, ClientHandle.Welcome}
+        };
+
+        Debug.Log("Initizalized Client Data");
+    }
+
 }
