@@ -9,7 +9,8 @@ using UnityEngine;
         welcome = 1,
         spawnPlayer,
         playerPosition,
-        playerRotation
+        playerRotation,
+        playerDisconnected
 
     }
 

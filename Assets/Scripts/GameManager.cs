@@ -30,11 +30,13 @@ public class GameManager : MonoBehaviour
         // Local user
         if (_id == Client.Instance.MyId) {
             _player = Instantiate(localPlayerPrefab, _position, _rotation);
+            Debug.Log("Spawned local Player");
         }
 
         // Other user
         else {
             _player = Instantiate(PlayerPrefab, _position, _rotation);
+            Debug.Log("Spawned other Player");
         }
 
         PlayerManager playerManager = _player.GetComponent<PlayerManager>();

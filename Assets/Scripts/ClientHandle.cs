@@ -34,20 +34,28 @@ public class ClientHandle : MonoBehaviour
 
     public static void PlayerPosition(Packet _packet) {
 
+        if (GameManager.players.Count == 0) { return; }
         int _id = _packet.ReadInt();
         Vector3 _position = _packet.ReadVector3();
 
-        GameManager.players[_id].transform.position = _position;
-        
+        GameManager.players[_id].transform.position = _position; //Vector3.Lerp(GameManager.players[_id].transform.position , _position, Time.deltaTime * 15); ;
     }
 
     
     public static void PlayerRotation(Packet _packet) {
 
+        if (GameManager.players.Count == 0) { return; }
+
         int _id = _packet.ReadInt();
         Quaternion _rotation = _packet.ReadQuaternion();
 
-        GameManager.players[_id].transform.rotation = _rotation;
-        
+        GameManager.players[_id].transform.rotation = _rotation; //Quaternion.Lerp(GameManager.players[_id].transform.rotation , _rotation, Time.deltaTime * 30); 
+    }
+
+    public static void PlayerDisconnected(Packet _packet) {
+        int _id = _packet.ReadInt();
+
+        Destroy(GameManager.players[_id].gameObject);
+        GameManager.players.Remove(_id);
     }
 }
