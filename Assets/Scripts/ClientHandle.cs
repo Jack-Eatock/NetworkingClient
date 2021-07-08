@@ -35,10 +35,26 @@ public class ClientHandle : MonoBehaviour
     public static void PlayerPosition(Packet _packet) {
 
         if (GameManager.players.Count == 0) { return; }
+
         int _id = _packet.ReadInt();
         Vector3 _position = _packet.ReadVector3();
 
-        GameManager.players[_id].transform.position = _position; //Vector3.Lerp(GameManager.players[_id].transform.position , _position, Time.deltaTime * 15); ;
+        if (Client.Instance.MyId == _id) {
+            GameManager.players[_id].GetComponent<PlayerController>().UpdatePosFromServer(_position);
+        }
+        else {
+            GameManager.players[_id].transform.position = _position; 
+        }
+      
+
+        // Calculate time it should take to arrive at destination. 
+        // calc distance
+
+       // 
+
+
+        //GameManager.players[_id].transform.position = _position; 
+       // GameManager.players[_id].transform.position = Vector3.Lerp(GameManager.players[_id].transform.position , _position, 0.1f); ;
     }
 
     

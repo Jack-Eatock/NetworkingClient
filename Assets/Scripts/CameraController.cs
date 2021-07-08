@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour
         horizontalRotation = transform.localEulerAngles.y;
     }
 
-    private void Update() {
+    private void FixedUpdate() {
         Look();
 
         Debug.DrawRay(transform.position, transform.forward * 2, Color.red);
