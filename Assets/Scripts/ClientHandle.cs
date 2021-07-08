@@ -46,15 +46,6 @@ public class ClientHandle : MonoBehaviour
             GameManager.players[_id].transform.position = _position; 
         }
       
-
-        // Calculate time it should take to arrive at destination. 
-        // calc distance
-
-       // 
-
-
-        //GameManager.players[_id].transform.position = _position; 
-       // GameManager.players[_id].transform.position = Vector3.Lerp(GameManager.players[_id].transform.position , _position, 0.1f); ;
     }
 
     
@@ -65,7 +56,12 @@ public class ClientHandle : MonoBehaviour
         int _id = _packet.ReadInt();
         Quaternion _rotation = _packet.ReadQuaternion();
 
-        GameManager.players[_id].transform.rotation = _rotation; //Quaternion.Lerp(GameManager.players[_id].transform.rotation , _rotation, Time.deltaTime * 30); 
+        if (Client.Instance.MyId == _id) {
+            GameManager.players[_id].GetComponent<PlayerController>().UpdatePosFromServer(_rotation);
+        }
+        else {
+            GameManager.players[_id].transform.rotation = _rotation; 
+        }
     }
 
     public static void PlayerDisconnected(Packet _packet) {

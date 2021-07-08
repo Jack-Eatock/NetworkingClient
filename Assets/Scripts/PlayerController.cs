@@ -4,22 +4,28 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
-    public float moveSpeed = 5f;
-    public float jumpspeed = 5f;
-    private bool[] inputs;
-    private float yVelocity = 0;
-    public float gravity = -9.91f;
-    public CharacterController Controller;
+    // New
+    public Transform Car;
+    public Transform Raypoint;
+    private Rigidbody _carRig;
+    public float ForwardAccel = 8f, ReverseAccel = 4f, MaxSpeed = 50f, TurnStrength = 40f, gravityForce = 10f;
+    public float Drag = 5f;
+    public Transform CentreOfMass;
 
+    public LayerMask whatIsGround;
+    public float GroundRayLength = .5f;
+    private float ChangeInForwardVelocity = 0;
+    private bool isGrounded = true;
+
+    private bool[] inputs;
     Vector2 _inputDirection;
-    Vector3 _moveDirection;
 
     public Vector3 RealPos = Vector3.zero;
+    public Quaternion RealRot = Quaternion.identity;
 
-     private void Start() {
-        gravity *= Time.fixedDeltaTime * Time.fixedDeltaTime;
-        moveSpeed *= Time.fixedDeltaTime;
-        jumpspeed *= Time.fixedDeltaTime;
+    private void Awake() {
+        _carRig = Car.GetComponent<Rigidbody>();
+        _carRig.centerOfMass = CentreOfMass.position;
     }
 
 
@@ -37,7 +43,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void GrabInputs() {
-         inputs = new bool[] {
+        inputs = new bool[] {
             Input.GetKey(KeyCode.W),
             Input.GetKey(KeyCode.S),
             Input.GetKey(KeyCode.A),
@@ -51,70 +57,54 @@ public class PlayerController : MonoBehaviour {
         ClientSend.PlayerMovement(inputs);
     }
 
-    public void UpdatePosFromServer(Vector3 _newPos) {
+    public void UpdatePosFromServer(Vector3 _newPos) { RealPos = _newPos; }
 
-        RealPos = _newPos;
-      
-        /*
-        // caluculate distance ( length of a - b ) 
-        _distanceFromNewPos = (transform.position - _newPos).magnitude;
-
-        // calculate time ( time = distance / speed )
-        _timeTaken = _distanceFromNewPos / (5f * Time.fixedDeltaTime);
-
-        MoveToDestinationInTime(_newPos);
-        */
-        if ( (transform.position - _newPos).magnitude >= .2f) {
-
-            
-            // _inputDirection = Vector2.zero;
-            // _moveDirection = Vector3.zero;
-             //yVelocity = 0;
-
-             //transform.position = Vector3.Lerp(transform.position, _newPos, 0.1f); ;
-              //transform.position = _newPos;
-        }
-      
-
-       // transform.position = Vector3.Lerp(transform.position, _newPos, 0.1f); ;
-    }
+    public void UpdatePosFromServer(Quaternion _newRot) { RealRot = _newRot; }
 
     private void ClientSidePrediction() {
-         _inputDirection = Vector2.zero;
 
-        if (inputs[0]) {_inputDirection.y  += 1;}
-        if (inputs[1]) { _inputDirection.y -= 1;}
-        if (inputs[2]) {_inputDirection.x  += 1;}
-        if (inputs[3]) { _inputDirection.x -= 1;}
-       
-         _moveDirection = -transform.right * _inputDirection.x + transform.forward * _inputDirection.y;
-        _moveDirection *= moveSpeed;
+        _inputDirection = Vector2.zero;
+        if (inputs[0]) { _inputDirection.y += 1; }
+        if (inputs[1]) { _inputDirection.y -= 1; }
+        if (inputs[2]) { _inputDirection.x -= 1; }
+        if (inputs[3]) { _inputDirection.x += 1; }
 
-        if (Controller.isGrounded) {
-            yVelocity = 0;
-            if (inputs[4]) {
-                yVelocity = jumpspeed;
+        isGrounded = false; RaycastHit hit;
+        if (Physics.Raycast(Raypoint.position, -transform.up, out hit, GroundRayLength, whatIsGround)) { isGrounded = true; }
+
+        switch (_inputDirection.y) {
+            case (-1): ChangeInForwardVelocity = _inputDirection.y * ReverseAccel; break;
+            case (1): ChangeInForwardVelocity = _inputDirection.y * ForwardAccel; break;
+            default: break;
+        }
+
+        // Before doing anything check sync
+        if ((Car.position - RealPos).magnitude >= 0.1f) { Car.position = RealPos; Debug.Log("RESYNC"); }
+        if ((Car.rotation.eulerAngles - RealRot.eulerAngles).magnitude >= 0.1f) {  Debug.Log("RESYNC"); Car.rotation = RealRot; }
+      
+
+        if (isGrounded) {
+
+            var localVelocity = Car.InverseTransformDirection(_carRig.velocity);
+            var forwardSpeed = localVelocity.z;
+            // if moving
+           // Debug.Log(forwardSpeed);
+            // forward or back? 
+
+            if (localVelocity.magnitude >= 0.1f) {
+                if (forwardSpeed >= 0.01f) { Car.rotation = Quaternion.Euler(Car.rotation.eulerAngles + new Vector3(0f, _inputDirection.x * TurnStrength * 1 * Time.deltaTime, 0f)); }
+                else { Car.rotation = Quaternion.Euler(Car.rotation.eulerAngles + new Vector3(0f, _inputDirection.x * TurnStrength * -1 * Time.deltaTime, 0f)); }
             }
+
+            // nullify forces that are not in the forward direction.
+            //if (localVelocity.x >= 0.1f) { localVelocity.x = localVelocity.x * 1 / Drag; }
+            // Car.transform.TransformDirection(localVelocity);
+            _carRig.AddForce(Car.forward * ChangeInForwardVelocity * Time.deltaTime * 100f); ChangeInForwardVelocity = 0;
+
+
         }
+        
 
-        yVelocity += gravity;
 
-        if (transform.position == RealPos) {
-             _moveDirection.y = yVelocity;
-             Controller.Move(_moveDirection);
-        }
-        else {
-
-            /*
-            // If in air and not far dont reset pos give benefit of doubt
-            if (!Controller.isGrounded && ((transform.position - RealPos).magnitude <= 0.2f)) {
-                return;
-            }
-            */
-
-            transform.position = RealPos;
-        }
-
-       
     }
 }
