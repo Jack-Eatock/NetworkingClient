@@ -79,8 +79,8 @@ public class PlayerController : MonoBehaviour {
         }
 
         // Before doing anything check sync
-        if ((Car.position - RealPos).magnitude >= 0.1f) { Car.position = RealPos; Debug.Log("RESYNC"); }
-        if ((Car.rotation.eulerAngles - RealRot.eulerAngles).magnitude >= 0.1f) {  Debug.Log("RESYNC"); Car.rotation = RealRot; }
+        if ((Car.position - RealPos).magnitude >= 0.1f) { Car.position = RealPos; Debug.Log("RESYNC - Position"); }
+        if ((Car.rotation.eulerAngles - RealRot.eulerAngles).magnitude >= 0.1f) {  Debug.Log("RESYNC - Rotation"); Car.rotation = RealRot; }
       
 
         if (isGrounded) {

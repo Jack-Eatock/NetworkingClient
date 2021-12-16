@@ -4,35 +4,19 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public PlayerManager player;
-    public float sensitivity = 100f;
-    public float clampAngle = 85f;
+    public GameObject player;
+    public Vector3 cameraVelocity;
+    public Vector3 cameraOffset;
+    public float distInfront =2f;
+    public float CameraFollowSmoothTime = 2f;
 
-    private float verticalRotation;
-    private float horizontalRotation;
 
-    private void Start() {
-        verticalRotation = transform.localEulerAngles.x;
-        horizontalRotation = transform.localEulerAngles.y;
+     private void FixedUpdate() {
+         
+   
+        Vector3.SmoothDamp(transform.position, player.transform.position + cameraOffset, ref cameraVelocity, CameraFollowSmoothTime);
+        transform.position = transform.position + cameraVelocity * Time.deltaTime;
+        transform.position += player.transform.forward * distInfront;
     }
 
-    private void FixedUpdate() {
-        Look();
-
-        Debug.DrawRay(transform.position, transform.forward * 2, Color.red);
-    }
-
-    private void Look() {
-        float _mouseVertical = -Input.GetAxis("Mouse Y");
-        float _mouseHorizontal = Input.GetAxis("Mouse X");
-
-        verticalRotation += _mouseVertical * sensitivity * Time.deltaTime;
-        horizontalRotation += _mouseHorizontal * sensitivity * Time.deltaTime;
-
-        verticalRotation = Mathf.Clamp(verticalRotation, -clampAngle, clampAngle);
-
-        transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
-        player.transform.rotation = Quaternion.Euler(0f, horizontalRotation, 0f);
-
-    }
 }

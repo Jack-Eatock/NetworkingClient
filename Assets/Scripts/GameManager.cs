@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     public GameObject localPlayerPrefab;
     public GameObject PlayerPrefab;
 
+    public CameraController Camera;
+
     private void Awake() {
 
         // Ensures only one. Signleton method.
@@ -29,7 +31,8 @@ public class GameManager : MonoBehaviour
 
         // Local user
         if (_id == Client.Instance.MyId) {
-            _player = Instantiate(localPlayerPrefab, _position, _rotation);
+             _player = Instantiate(localPlayerPrefab, _position, _rotation);
+            Camera.player = _player.transform.GetChild(0).gameObject;
             Debug.Log("Spawned local Player");
         }
 
